@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+  account:
+    build:
+      context: .
+      dockerfile: ./account/dockerfiles/app.dockerfile
+    depends_on:
+      - account_db
+    environment:
+      DATABASE_URL: postgres://shopvee:123456@account_db/shopvee?sslmode=disable
+    restart: on-failure
+
+  account_db:
+    build:
+      context: ./account
+      dockerfile: ./dockerfiles/db.dockerfile
+    environment:
+      POSTGRES_DB: shopvee
+      POSTGRES_USER: shopvee
+      POSTGRES_PASSWORD: 123456
+    restart: unless-stopped

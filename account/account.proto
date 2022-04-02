@@ -1,0 +1,43 @@
+syntax = "proto3";
+package account;
+
+option go_package = "../account";
+
+message Account {
+    string id = 1;
+    string name = 2;
+}
+
+message CreateAccountRequest {
+    string name = 1;
+}
+
+message CreateAccountResponse {
+    Account account = 1;
+}
+
+message FindAccountRequest {
+    string id = 1;
+}
+
+message FindAccountResponse {
+    Account account = 1;
+}
+
+message GetAccountsRequest {
+    uint64 skip = 1;
+    uint64 take = 2;
+}
+
+message GetAccountsResponse {
+    repeated Account accounts = 1;
+}
+
+service AccountService {
+    rpc CreateAccount (CreateAccountRequest) returns (CreateAccountResponse) {
+    }
+    rpc FindAccount (FindAccountRequest) returns (FindAccountResponse) {
+    }
+    rpc GetAccounts (GetAccountsRequest) returns (GetAccountsResponse) {
+    }
+}
