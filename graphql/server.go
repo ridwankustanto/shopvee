@@ -8,23 +8,18 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/ridwankustanto/shopvee/account"
-	"github.com/ridwankustanto/shopvee/graph/generated"
+	"github.com/ridwankustanto/shopvee/graphql/graph"
+	"github.com/ridwankustanto/shopvee/graphql/graph/generated"
+	"github.com/ridwankustanto/shopvee/product"
 )
 
 const defaultPort = "8080"
 
 type AppConfig struct {
 	AccountURL string `envconfig:"ACCOUNT_SERVICE_URL"`
+	ProductURL string `envconfig:"PRODUCT_SERVICE_URL"`
 	Port       string `envconfig:"PORT"`
 }
-
-type Server struct {
-	accountClient *account.Client
-}
-
-func (r *Server) Mutation() generated.MutationResolver { return &mutationResolver{server: r} }
-
-func (r *Server) Query() generated.QueryResolver { return &queryResolver{server: r} }
 
 func main() {
 	var cfg AppConfig
@@ -45,7 +40,15 @@ func main() {
 		log.Fatal("failed on start new account client: ", err)
 	}
 
-	s := &Server{accountClient}
+	productClient, err := product.NewClient(cfg.ProductURL)
+	if err != nil {
+		log.Fatal("failed on start new product client: ", err)
+	}
+
+	s := &graph.Server{
+		AccountClient: accountClient,
+		ProductClient: productClient,
+	}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: s}))
 

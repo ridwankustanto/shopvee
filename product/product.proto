@@ -1,0 +1,48 @@
+syntax = "proto3";
+package product;
+
+option go_package = "../product";
+
+message Product {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string timestamp = 4;
+    double price = 5;
+}
+
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    double price = 3;
+}
+
+message CreateProductResponse {
+    Product product = 1;
+}
+
+message FindProductRequest {
+    string id = 1;
+}
+
+message FindProductResponse {
+    Product product = 1;
+}
+
+message GetProductsRequest {
+    uint64 skip = 1;
+    uint64 take = 2;
+}
+
+message GetProductsResponse {
+    repeated Product products = 1;
+}
+
+service ProductService {
+    rpc CreateProduct (CreateProductRequest) returns (CreateProductResponse) {
+    }
+    rpc FindProduct (FindProductRequest) returns (FindProductResponse) {
+    }
+    rpc GetProducts (GetProductsRequest) returns (GetProductsResponse) {
+    }
+}

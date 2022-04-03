@@ -3,8 +3,9 @@ RUN apk --no-cache add gcc g++ make ca-certificates
 WORKDIR /github.com/ridwankustanto/shopvee
 COPY go.mod go.sum ./
 COPY account account
-COPY graph graph
-RUN GO111MODULE=on go build -o /go/bin/app ./graph
+COPY product product
+COPY graphql graphql
+RUN GO111MODULE=on go build -o /go/bin/app ./graphql
 
 FROM alpine:3.11
 WORKDIR /usr/bin

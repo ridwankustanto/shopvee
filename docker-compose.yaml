@@ -6,12 +6,22 @@ services:
       context: .
       dockerfile: ./account/dockerfiles/app.dockerfile
     depends_on:
-      - account_db
+      - db
     environment:
-      DATABASE_URL: postgres://shopvee:123456@account_db/shopvee?sslmode=disable
+      DATABASE_URL: postgres://shopvee:123456@db/shopvee?sslmode=disable
     restart: on-failure
 
-  account_db:
+  product:
+    build:
+      context: .
+      dockerfile: ./product/dockerfiles/app.dockerfile
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://shopvee:123456@db/shopvee?sslmode=disable
+    restart: on-failure
+
+  db:
     build:
       context: ./account
       dockerfile: ./dockerfiles/db.dockerfile
@@ -24,12 +34,13 @@ services:
   graphql:
     build:
       context: .
-      dockerfile: ./graph/dockerfiles/app.dockerfile
+      dockerfile: ./graphql/dockerfiles/app.dockerfile
     ports:
       - 8080:8080
     depends_on:
       - account
     environment:
       ACCOUNT_SERVICE_URL: account:8080
+      PRODUCT_SERVICE_URL: product:8080
       PORT: 8080
     restart: on-failure
