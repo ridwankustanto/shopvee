@@ -20,3 +20,16 @@ services:
       POSTGRES_USER: shopvee
       POSTGRES_PASSWORD: 123456
     restart: unless-stopped
+
+  graphql:
+    build:
+      context: .
+      dockerfile: ./graph/dockerfiles/app.dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - account
+    environment:
+      ACCOUNT_SERVICE_URL: account:8080
+      PORT: 8080
+    restart: on-failure
