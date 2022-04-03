@@ -26,7 +26,6 @@ func ListenGRPC(s Service, port int) error {
 }
 
 func (s grpcServer) CreateAccount(ctx context.Context, in *CreateAccountRequest) (*CreateAccountResponse, error) {
-
 	a, err := s.service.CreateAccount(ctx, in.Name)
 	if err != nil {
 		return nil, err
@@ -38,13 +37,30 @@ func (s grpcServer) CreateAccount(ctx context.Context, in *CreateAccountRequest)
 }
 
 func (s grpcServer) FindAccount(ctx context.Context, in *FindAccountRequest) (*FindAccountResponse, error) {
-
-	return nil, nil
+	a, err := s.service.FindAccount(ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &FindAccountResponse{
+		Account: a,
+	}, nil
 }
 
 func (s grpcServer) GetAccounts(ctx context.Context, in *GetAccountsRequest) (*GetAccountsResponse, error) {
-
-	return nil, nil
+	res, err := s.service.GetAccounts(ctx, in.Skip, in.Take)
+	if err != nil {
+		return nil, err
+	}
+	accounts := []*Account{}
+	for _, a := range res {
+		accounts = append(accounts, &Account{
+			Id:   a.Id,
+			Name: a.Name,
+		})
+	}
+	return &GetAccountsResponse{
+		Accounts: accounts,
+	}, nil
 }
 
 func (s grpcServer) mustEmbedUnimplementedAccountServiceServer() {

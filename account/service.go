@@ -2,6 +2,7 @@ package account
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -22,7 +23,7 @@ func NewService(r Repository) Service {
 
 func (s accountService) CreateAccount(ctx context.Context, name string) (*Account, error) {
 	account := &Account{
-		Id:   uuid.NewString(),
+		Id:   strings.ReplaceAll(uuid.NewString(), "-", ""),
 		Name: name,
 	}
 	if err := s.repository.CreateAccount(ctx, *account); err != nil {
@@ -31,12 +32,18 @@ func (s accountService) CreateAccount(ctx context.Context, name string) (*Accoun
 	return account, nil
 }
 
-func (a accountService) FindAccount(ctx context.Context, id string) (*Account, error) {
-
-	return nil, nil
+func (s accountService) FindAccount(ctx context.Context, id string) (*Account, error) {
+	a, err := s.repository.GetAccountByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
 }
 
-func (a accountService) GetAccounts(ctx context.Context, skip, take uint64) ([]Account, error) {
-
-	return nil, nil
+func (s accountService) GetAccounts(ctx context.Context, skip, take uint64) ([]Account, error) {
+	accounts, err := s.repository.ListAccounts(ctx, skip, take)
+	if err != nil {
+		return nil, err
+	}
+	return accounts, nil
 }

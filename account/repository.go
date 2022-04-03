@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -44,11 +45,34 @@ func (r postgresRepository) CreateAccount(ctx context.Context, a Account) error 
 }
 
 func (r postgresRepository) GetAccountByID(ctx context.Context, id string) (*Account, error) {
-
-	return nil, nil
+	row := r.db.QueryRowContext(ctx, "SELECT * FROM accounts WHERE id = $1", id)
+	a := &Account{}
+	if err := row.Scan(&a.Id, &a.Name); err != nil {
+		log.Println("failed on get account by id:", id, err)
+		return nil, err
+	}
+	return a, nil
 }
 
 func (r postgresRepository) ListAccounts(ctx context.Context, skip, take uint64) ([]Account, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT * FROM accounts ORDER BY id DESC OFFSET $1 LIMIT $2", skip, take)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	defer rows.Close()
+
+	accounts := []Account{}
+	for rows.Next() {
+		a := &Account{}
+		if err = rows.Scan(&a.Id, &a.Name); err == nil {
+			accounts = append(accounts, *a)
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return accounts, nil
 }

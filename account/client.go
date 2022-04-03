@@ -37,11 +37,27 @@ func (c *Client) CreateAccount(ctx context.Context, name string) (*Account, erro
 }
 
 func (c *Client) FindAccount(ctx context.Context, id string) (*Account, error) {
-
-	return nil, nil
+	a, err := c.service.FindAccount(ctx, &FindAccountRequest{Id: id})
+	if err != nil {
+		return nil, err
+	}
+	return &Account{
+		Id:   a.Account.Id,
+		Name: a.Account.Name,
+	}, nil
 }
 
-func (c *Client) GetAccounts(ctx context.Context) ([]Account, error) {
-
-	return nil, nil
+func (c *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]Account, error) {
+	res, err := c.service.GetAccounts(ctx, &GetAccountsRequest{Skip: skip, Take: take})
+	if err != nil {
+		return nil, err
+	}
+	accounts := []Account{}
+	for _, a := range res.Accounts {
+		accounts = append(accounts, Account{
+			Id:   a.Id,
+			Name: a.Name,
+		})
+	}
+	return accounts, nil
 }
