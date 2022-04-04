@@ -3,7 +3,7 @@
 
 
 ## Description
-Shopvee is simple e-commerce that implemented microservice architecture. It used gRPC as main communication between services and serve graphql for the client to consume it's function.
+Shopvee is simple e-commerce that implemented microservice architecture. It used gRPC as main communication between services and serve graphql for the client to consume its function.
 
 ## Keypoint
 
