@@ -61,6 +61,7 @@ func (s *grpcServer) CreateOrder(ctx context.Context, in *CreateOrderRequest) (*
 			log.Println("failed while get data product:", err)
 			return nil, err
 		}
+		p.Quantity = orderProduct.Quantity
 		products = append(products, p)
 	}
 
