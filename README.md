@@ -32,7 +32,7 @@ Make sure you already start the Docker engine.
 
 ## Testing
 
-Since the client depends on their service and DB, so the test will run while running `docker-compose up --build -d unit_test` as a container. It will die after the test finished.
+Since the client depends on their service and DB, hence the test will run while running `docker-compose up --build -d unit_test` as a container. It will die after the test finished.
 
 
 ## Example
