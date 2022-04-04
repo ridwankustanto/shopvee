@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/ridwankustanto/shopvee/graphql/graph/generated"
@@ -28,7 +27,21 @@ func (r *MutationResolver) CreateAccount(ctx context.Context, account model.Acco
 }
 
 func (r *MutationResolver) CreateProduct(ctx context.Context, product model.ProductInput) (*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	p, err := r.server.ProductClient.CreateProduct(ctx, product.Name, product.Description, product.Price)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Product{
+		ID:          p.Id,
+		Name:        p.Name,
+		Description: p.Description,
+		Price:       p.Price,
+		Timestamp:   p.Timestamp,
+	}, nil
 }
 
 func (r *QueryResolver) Accounts(ctx context.Context, pagination *model.PaginationInput, id *string) ([]*model.Account, error) {
@@ -64,7 +77,41 @@ func (r *QueryResolver) Accounts(ctx context.Context, pagination *model.Paginati
 }
 
 func (r *QueryResolver) Products(ctx context.Context, pagination *model.PaginationInput, id *string) ([]*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	if id != nil {
+		p, err := r.server.ProductClient.FindProduct(ctx, *id)
+		if err != nil {
+			return nil, err
+		}
+
+		return []*model.Product{{
+			ID:          p.Id,
+			Name:        p.Name,
+			Description: p.Description,
+			Price:       p.Price,
+			Timestamp:   p.Timestamp,
+		}}, nil
+	}
+
+	productList, err := r.server.ProductClient.GetProducts(ctx, uint64(*pagination.Skip), uint64(*pagination.Take))
+	if err != nil {
+		return nil, err
+	}
+
+	products := []*model.Product{}
+	for _, p := range productList {
+		products = append(products, &model.Product{
+			ID:          p.Id,
+			Name:        p.Name,
+			Description: p.Description,
+			Price:       p.Price,
+			Timestamp:   p.Timestamp,
+		})
+	}
+
+	return products, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

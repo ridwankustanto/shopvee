@@ -28,7 +28,7 @@ func (s *productService) CreateProduct(ctx context.Context, name, description st
 		Name:        name,
 		Description: description,
 		Price:       price,
-		Timestamp:   time.Now().String(),
+		Timestamp:   time.Now().Format("2006-01-02 15:04:05-0700"),
 	}
 	err := s.respository.CreateProduct(ctx, p)
 	if err != nil {

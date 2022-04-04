@@ -24,7 +24,7 @@ func main() {
 	foreverSleep(3*time.Second, func(_ int) error {
 		r, err = account.NewPostgresRepository(cfg.DatabaseURL)
 		if err != nil {
-			log.Println("failed while try to connect postgres: ", err)
+			log.Println("failed on registering new postgres repository: ", err)
 		}
 		return err
 	})

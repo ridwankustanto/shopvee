@@ -6,24 +6,54 @@ services:
       context: .
       dockerfile: ./account/dockerfiles/app.dockerfile
     depends_on:
-      - db
+      - account_db
     environment:
-      DATABASE_URL: postgres://shopvee:123456@db/shopvee?sslmode=disable
+      DATABASE_URL: postgres://shopvee:123456@account_db/shopvee?sslmode=disable
     restart: on-failure
+  
+  account_db:
+    build:
+      context: ./account
+      dockerfile: ./dockerfiles/db.dockerfile
+    environment:
+      POSTGRES_DB: shopvee
+      POSTGRES_USER: shopvee
+      POSTGRES_PASSWORD: 123456
+    restart: unless-stopped
 
   product:
     build:
       context: .
       dockerfile: ./product/dockerfiles/app.dockerfile
     depends_on:
-      - db
+      - product_db
     environment:
-      DATABASE_URL: postgres://shopvee:123456@db/shopvee?sslmode=disable
+      DATABASE_URL: postgres://shopvee:123456@product_db/shopvee?sslmode=disable
     restart: on-failure
 
-  db:
+  product_db:
     build:
-      context: ./account
+      context: ./product
+      dockerfile: ./dockerfiles/db.dockerfile
+    environment:
+      POSTGRES_DB: shopvee
+      POSTGRES_USER: shopvee
+      POSTGRES_PASSWORD: 123456
+    restart: unless-stopped
+  
+  order:
+    build:
+      context: .
+      dockerfile: ./order/dockerfiles/app.dockerfile
+    depends_on:
+      - order_db
+    environment:
+      DATABASE_URL: postgres://shopvee:123456@order_db/shopvee?sslmode=disable
+    restart: on-failure
+
+  order_db:
+    build:
+      context: ./order
       dockerfile: ./dockerfiles/db.dockerfile
     environment:
       POSTGRES_DB: shopvee

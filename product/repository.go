@@ -65,6 +65,8 @@ func (r *postgresRepository) GetProducts(ctx context.Context, skip, take uint64)
 		log.Println("failed on querying list product:", err)
 		return nil, err
 	}
+	defer rows.Close()
+
 	products := []Product{}
 	for rows.Next() {
 		p := Product{}

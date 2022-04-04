@@ -22,10 +22,12 @@ type postgresRepository struct {
 func NewPostgresRepository(url string) (Repository, error) {
 	db, err := sql.Open("postgres", url)
 	if err != nil {
+		log.Println("failed on opening connection postgres:", err)
 		return nil, err
 	}
 	err = db.Ping()
 	if err != nil {
+		log.Println("failed on ping postgres server:", err)
 		return nil, err
 	}
 	return &postgresRepository{db}, nil
