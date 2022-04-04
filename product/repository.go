@@ -44,15 +44,15 @@ func (r *postgresRepository) Ping() error {
 }
 
 func (r *postgresRepository) CreateProduct(ctx context.Context, product Product) error {
-	_, err := r.db.ExecContext(ctx, "INSERT INTO products(id, name, description, price, timestamp) VALUES($1, $2, $3, $4, $5)",
+	_, err := r.db.ExecContext(ctx, "INSERT INTO products(id, name, description, price, created_at) VALUES($1, $2, $3, $4, $5)",
 		product.Id, product.Name, product.Description, product.Price, product.Timestamp)
 	return err
 }
 
 func (r *postgresRepository) FindProduct(ctx context.Context, id string) (*Product, error) {
-	row := r.db.QueryRowContext(ctx, "SELECT * FROM products WHERE id = $1", id)
+	row := r.db.QueryRowContext(ctx, "SELECT id, name, description, created_at, price FROM products WHERE id = $1", id)
 	p := &Product{}
-	if err := row.Scan(&p.Id, &p.Name, &p.Description, &p.Price, &p.Timestamp); err != nil {
+	if err := row.Scan(&p.Id, &p.Name, &p.Description, &p.Timestamp, &p.Price); err != nil {
 		log.Println("failed on scanning product data:", err)
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (r *postgresRepository) FindProduct(ctx context.Context, id string) (*Produ
 }
 
 func (r *postgresRepository) GetProducts(ctx context.Context, skip, take uint64) ([]Product, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT * FROM products ORDER BY id DESC OFFSET $1 LIMIT $2", skip, take)
+	rows, err := r.db.QueryContext(ctx, "SELECT id, name, description, created_at, price FROM products ORDER BY id DESC OFFSET $1 LIMIT $2", skip, take)
 	if err != nil {
 		log.Println("failed on querying list product:", err)
 		return nil, err
@@ -70,7 +70,7 @@ func (r *postgresRepository) GetProducts(ctx context.Context, skip, take uint64)
 	products := []Product{}
 	for rows.Next() {
 		p := Product{}
-		if err = rows.Scan(&p.Id, &p.Name, &p.Description, &p.Price, &p.Timestamp); err == nil {
+		if err = rows.Scan(&p.Id, &p.Name, &p.Description, &p.Timestamp, &p.Price); err == nil {
 			products = append(products, p)
 		}
 	}

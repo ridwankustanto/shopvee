@@ -10,6 +10,7 @@ import (
 	"github.com/ridwankustanto/shopvee/account"
 	"github.com/ridwankustanto/shopvee/graphql/graph"
 	"github.com/ridwankustanto/shopvee/graphql/graph/generated"
+	"github.com/ridwankustanto/shopvee/order"
 	"github.com/ridwankustanto/shopvee/product"
 )
 
@@ -18,6 +19,7 @@ const defaultPort = "8080"
 type AppConfig struct {
 	AccountURL string `envconfig:"ACCOUNT_SERVICE_URL"`
 	ProductURL string `envconfig:"PRODUCT_SERVICE_URL"`
+	OrderURL   string `envconfig:"ORDER_SERVICE_URL"`
 	Port       string `envconfig:"PORT"`
 }
 
@@ -45,9 +47,15 @@ func main() {
 		log.Fatal("failed on start new product client: ", err)
 	}
 
+	orderClient, err := order.NewClient(cfg.OrderURL)
+	if err != nil {
+		log.Fatal("failed on start new order client: ", err)
+	}
+
 	s := &graph.Server{
 		AccountClient: accountClient,
 		ProductClient: productClient,
+		OrderClient:   orderClient,
 	}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: s}))

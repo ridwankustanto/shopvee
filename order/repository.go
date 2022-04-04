@@ -6,10 +6,10 @@ import (
 	"log"
 
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 type Repository interface {
+	Close()
 	CreateOrder(ctx context.Context, order Order) error
 	GetOrderByAccountID(ctx context.Context, accountID string) ([]Order, error)
 }
@@ -32,6 +32,14 @@ func NewPostgresRepository(url string) (Repository, error) {
 	return &postgresRepository{db}, nil
 }
 
+func (r *postgresRepository) Close() {
+	r.db.Close()
+}
+
+func (r *postgresRepository) Ping() error {
+	return r.db.Ping()
+}
+
 func (r *postgresRepository) CreateOrder(ctx context.Context, order Order) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -39,7 +47,7 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, order Order) error
 		return err
 	}
 	// Insert order
-	_, err = tx.ExecContext(ctx, "INSERT INTO orders(id, account_id, total_price, timestamp) VALUES($1, $2, $3, $4)", order.Id, order.AccountId, order.TotalPrice, order.Timestamp)
+	_, err = tx.ExecContext(ctx, "INSERT INTO orders(id, account_id, total_price, created_at) VALUES($1, $2, $3, $4)", order.Id, order.AccountId, order.TotalPrice, order.Timestamp)
 	if err != nil {
 		tx.Rollback()
 		log.Println("failed on executing db transaction:", err)
@@ -68,10 +76,10 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, order Order) error
 }
 
 func (r *postgresRepository) GetOrderByAccountID(ctx context.Context, accountID string) ([]Order, error) {
-	rows, err := r.db.QueryContext(ctx, `SELECT o.id, o.account_id, o.total_price, o.timestamp, op.product_id, op.quantity
+	rows, err := r.db.QueryContext(ctx, `SELECT o.id, o.account_id, o.total_price, o.created_at, op.product_id, op.quantity
 	FROM orders o JOIN order_products op ON (o.id = op.order_id)
 	WHERE account_id = $1
-	ORDER BY o.id`)
+	ORDER BY o.id`, accountID)
 	if err != nil {
 		log.Println("failed on quering:", err)
 		return nil, err
@@ -97,10 +105,16 @@ func (r *postgresRepository) GetOrderByAccountID(ctx context.Context, accountID 
 		// check if order exist on the map order
 		if _, ok := mapOrder[order.Id]; ok {
 			mapOrder[order.Id].Products = append(mapOrder[order.Id].Products, &Order_OrderProduct{
-				Id:       orderProduct.Id,
-				Quantity: orderProduct.Quantity,
+				Id:          orderProduct.Id,
+				Name:        orderProduct.Name,
+				Description: orderProduct.Description,
+				Price:       orderProduct.Price,
+				Quantity:    orderProduct.Quantity,
 			})
 		} else {
+			order.Products = []*Order_OrderProduct{
+				orderProduct,
+			}
 			mapOrder[order.Id] = order
 		}
 

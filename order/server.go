@@ -56,18 +56,12 @@ func (s *grpcServer) CreateOrder(ctx context.Context, in *CreateOrderRequest) (*
 	// Check if product item exist
 	products := []*Order_OrderProduct{}
 	for _, orderProduct := range in.Products {
-		p, err := s.productClient.FindProduct(ctx, orderProduct.ProductId)
+		p, err := s.getProductDetail(ctx, orderProduct.ProductId)
 		if err != nil {
 			log.Println("failed while get data product:", err)
 			return nil, err
 		}
-		products = append(products, &Order_OrderProduct{
-			Id:          p.Id,
-			Name:        p.Name,
-			Description: p.Description,
-			Price:       p.Price,
-			Quantity:    orderProduct.Quantity,
-		})
+		products = append(products, p)
 	}
 
 	// Create order
@@ -98,12 +92,24 @@ func (s *grpcServer) GetOrderByAccountID(ctx context.Context, in *GetOrderByAcco
 
 	orders := []*Order{}
 	for _, order := range listOrder {
+		orderedProduct := []*Order_OrderProduct{}
+		for _, p := range order.Products {
+			product, err := s.getProductDetail(ctx, p.Id)
+			if err != nil {
+				log.Println("failed on get data product detail:", err)
+				return nil, err
+			}
+			product.Quantity = p.Quantity
+
+			orderedProduct = append(orderedProduct, product)
+		}
+
 		orders = append(orders, &Order{
 			Id:         order.Id,
 			AccountId:  order.AccountId,
 			Timestamp:  order.Timestamp,
 			TotalPrice: order.TotalPrice,
-			Products:   order.Products,
+			Products:   orderedProduct,
 		})
 	}
 
@@ -113,3 +119,18 @@ func (s *grpcServer) GetOrderByAccountID(ctx context.Context, in *GetOrderByAcco
 }
 
 func (s *grpcServer) mustEmbedUnimplementedOrderServiceServer() {}
+
+func (s *grpcServer) getProductDetail(ctx context.Context, productID string) (*Order_OrderProduct, error) {
+	p, err := s.productClient.FindProduct(ctx, productID)
+	if err != nil {
+		log.Println("failed while get data product:", err)
+		return nil, err
+	}
+
+	return &Order_OrderProduct{
+		Id:          p.Id,
+		Name:        p.Name,
+		Description: p.Description,
+		Price:       p.Price,
+	}, nil
+}

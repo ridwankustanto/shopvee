@@ -5,11 +5,13 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
-	"github.com/ridwankustanto/shopvee/product"
+	"github.com/ridwankustanto/shopvee/order"
 )
 
 type Config struct {
 	DatabaseURL string `envconfig:"DATABASE_URL"`
+	AccountURL  string `envconfig:"ACCOUNT_SERVICE_URL"`
+	ProductURL  string `envconfig:"PRODUCT_SERVICE_URL"`
 }
 
 func main() {
@@ -19,9 +21,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var r product.Repository
+	var r order.Repository
 	foreverSleep(3*time.Second, func(_ int) error {
-		r, err = product.NewPostgresRepository(cfg.DatabaseURL)
+		r, err = order.NewPostgresRepository(cfg.DatabaseURL)
 		if err != nil {
 			log.Println("failed on registering new postgres repository:", err)
 			return err
@@ -31,8 +33,8 @@ func main() {
 	defer r.Close()
 
 	log.Println("Listening on port 8080...")
-	s := product.NewService(r)
-	log.Fatal(product.ListenGRPC(s, 8080))
+	s := order.NewService(r)
+	log.Fatal(order.ListenGRPC(s, cfg.AccountURL, cfg.ProductURL, 8080))
 }
 
 func foreverSleep(d time.Duration, f func(int) error) {

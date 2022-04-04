@@ -9,6 +9,7 @@ import (
 
 	"github.com/ridwankustanto/shopvee/graphql/graph/generated"
 	"github.com/ridwankustanto/shopvee/graphql/graph/model"
+	"github.com/ridwankustanto/shopvee/order"
 )
 
 func (r *MutationResolver) CreateAccount(ctx context.Context, account model.AccountInput) (*model.Account, error) {
@@ -25,7 +26,6 @@ func (r *MutationResolver) CreateAccount(ctx context.Context, account model.Acco
 		Name: a.Name,
 	}, nil
 }
-
 func (r *MutationResolver) CreateProduct(ctx context.Context, product model.ProductInput) (*model.Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
@@ -41,6 +41,40 @@ func (r *MutationResolver) CreateProduct(ctx context.Context, product model.Prod
 		Description: p.Description,
 		Price:       p.Price,
 		Timestamp:   p.Timestamp,
+	}, nil
+}
+func (r *MutationResolver) CreateOrder(ctx context.Context, o model.OrderInput) (*model.Order, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	products := []*order.CreateOrderRequest_OrderProduct{}
+	for _, p := range o.Products {
+		products = append(products, &order.CreateOrderRequest_OrderProduct{
+			ProductId: p.ID,
+			Quantity:  uint32(p.Quantity),
+		})
+	}
+
+	p, err := r.server.OrderClient.CreateOrder(ctx, o.AccountID, products)
+	if err != nil {
+		return nil, err
+	}
+
+	orderedProduct := []*model.OrderedProduct{}
+	for _, p := range p.Products {
+		orderedProduct = append(orderedProduct, &model.OrderedProduct{
+			ID:          p.Id,
+			Name:        p.Name,
+			Description: p.Description,
+			Price:       p.Price,
+			Quantity:    int(p.Quantity),
+		})
+	}
+	return &model.Order{
+		ID:         p.Id,
+		TotalPrice: p.TotalPrice,
+		Timestamp:  p.Timestamp,
+		Products:   orderedProduct,
 	}, nil
 }
 
@@ -75,7 +109,6 @@ func (r *QueryResolver) Accounts(ctx context.Context, pagination *model.Paginati
 
 	return accounts, nil
 }
-
 func (r *QueryResolver) Products(ctx context.Context, pagination *model.PaginationInput, id *string) ([]*model.Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
@@ -113,12 +146,42 @@ func (r *QueryResolver) Products(ctx context.Context, pagination *model.Paginati
 
 	return products, nil
 }
+func (r *QueryResolver) Orders(ctx context.Context, accountID *string) ([]*model.Order, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
-// Mutation returns generated.MutationResolver implementation.
+	listOrder, err := r.server.OrderClient.GetOrderByAccountID(ctx, *accountID)
+	if err != nil {
+		return nil, err
+	}
+
+	orders := []*model.Order{}
+	for _, o := range listOrder {
+		orderProduct := []*model.OrderedProduct{}
+		for _, p := range o.Products {
+			orderProduct = append(orderProduct, &model.OrderedProduct{
+				ID:          p.Id,
+				Name:        p.Name,
+				Description: p.Description,
+				Price:       p.Price,
+				Quantity:    int(p.Quantity),
+			})
+		}
+
+		orders = append(orders, &model.Order{
+			ID:         o.Id,
+			TotalPrice: o.TotalPrice,
+			Timestamp:  o.Timestamp,
+			Products:   orderProduct,
+		})
+	}
+
+	return orders, nil
+
+}
+
 func (r *Server) Mutation() generated.MutationResolver { return &MutationResolver{r} }
-
-// Query returns generated.QueryResolver implementation.
-func (r *Server) Query() generated.QueryResolver { return &QueryResolver{r} }
+func (r *Server) Query() generated.QueryResolver       { return &QueryResolver{r} }
 
 type MutationResolver struct {
 	server *Server

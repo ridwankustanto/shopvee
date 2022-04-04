@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS orders (
   id CHAR(32) PRIMARY KEY,
   account_id CHAR(32) NOT NULL,
-  total_price decimal(12,3) NOT NULL
-  timestamp timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  total_price decimal(12,3) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS order_products (
@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS order_products (
   quantity INT NOT NULL,
   PRIMARY KEY (product_id, order_id)
 );
+
+SET timezone = 'Asia/Jakarta';

@@ -11,6 +11,31 @@ type AccountInput struct {
 	Name string `json:"name"`
 }
 
+type Order struct {
+	ID         string            `json:"id"`
+	Timestamp  string            `json:"timestamp"`
+	TotalPrice float64           `json:"totalPrice"`
+	Products   []*OrderedProduct `json:"products"`
+}
+
+type OrderInput struct {
+	AccountID string               `json:"accountId"`
+	Products  []*OrderProductInput `json:"products"`
+}
+
+type OrderProductInput struct {
+	ID       string `json:"id"`
+	Quantity int    `json:"quantity"`
+}
+
+type OrderedProduct struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Quantity    int     `json:"quantity"`
+}
+
 type PaginationInput struct {
 	Skip *int `json:"skip"`
 	Take *int `json:"take"`

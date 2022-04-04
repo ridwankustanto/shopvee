@@ -25,18 +25,18 @@ func (c *Client) Close() {
 	c.conn.Close()
 }
 
-func (c *Client) CreateOrder(ctx context.Context, accountID string, products []Order_OrderProduct) (*Order, error) {
+func (c *Client) CreateOrder(ctx context.Context, accountID string, products []*CreateOrderRequest_OrderProduct) (*Order, error) {
 
-	orderProduct := []*CreateOrderRequest_OrderProduct{}
-	for _, p := range products {
-		orderProduct = append(orderProduct, &CreateOrderRequest_OrderProduct{
-			ProductId: p.Id,
-			Quantity:  p.Quantity,
-		})
-	}
+	// orderProduct := []*CreateOrderRequest_OrderProduct{}
+	// for _, p := range products {
+	// 	orderProduct = append(orderProduct, &CreateOrderRequest_OrderProduct{
+	// 		ProductId: p.ProductId,
+	// 		Quantity:  p.Quantity,
+	// 	})
+	// }
 	orderRequest := &CreateOrderRequest{
 		AccountId: accountID,
-		Products:  orderProduct,
+		Products:  products,
 	}
 	order, err := c.service.CreateOrder(ctx, orderRequest)
 	if err != nil {

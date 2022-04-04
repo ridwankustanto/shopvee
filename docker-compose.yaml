@@ -49,6 +49,8 @@ services:
       - order_db
     environment:
       DATABASE_URL: postgres://shopvee:123456@order_db/shopvee?sslmode=disable
+      ACCOUNT_SERVICE_URL: account:8080
+      PRODUCT_SERVICE_URL: product:8080
     restart: on-failure
 
   order_db:
@@ -72,5 +74,6 @@ services:
     environment:
       ACCOUNT_SERVICE_URL: account:8080
       PRODUCT_SERVICE_URL: product:8080
+      ORDER_SERVICE_URL: order:8080
       PORT: 8080
     restart: on-failure

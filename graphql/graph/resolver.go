@@ -2,6 +2,7 @@ package graph
 
 import (
 	"github.com/ridwankustanto/shopvee/account"
+	"github.com/ridwankustanto/shopvee/order"
 	"github.com/ridwankustanto/shopvee/product"
 )
 
@@ -12,4 +13,5 @@ import (
 type Server struct {
 	AccountClient *account.Client
 	ProductClient *product.Client
+	OrderClient   *order.Client
 }
