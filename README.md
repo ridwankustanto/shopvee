@@ -8,6 +8,7 @@ Shopvee is simple e-commerce that implemented microservice architecture. It used
 ## Keypoint
 
 - Mutate & Query services over GraphQL
+- Microservices
 - Use gRPC to communicate between services
 
 ## Architecture Design
