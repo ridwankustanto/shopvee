@@ -36,17 +36,17 @@ After containers up, open browser and go to http://localhost:8080
 
 - Create Account
 
-
+```
     mutation {
         john: createAccount(account: {name: "John"}) {
             id
             name
         }
     }
-
+```
 - Create Product
 
-
+```
     mutation {
         a : createProduct(product: {name: "Risol", description: "Risol pedas", price: 2500}) {
             id
@@ -70,11 +70,11 @@ After containers up, open browser and go to http://localhost:8080
             timestamp
        }
     }
-    
+```    
     
 - Place Order
 
-
+```
     mutation {
         createOrder(order: {accountId: "account_id", products: [
             {id: "product_id", quantity: 1},
@@ -86,14 +86,14 @@ After containers up, open browser and go to http://localhost:8080
                 timestamp
         }
     }
-    
+```    
     
     
 ##### Query
 
 - Get Accounts
 
-
+```
     // Get single item
     query {
       accounts(id: "account_id") {
@@ -109,11 +109,11 @@ After containers up, open browser and go to http://localhost:8080
         name
       }
     }
-    
+```    
     
 - Get Products
 
-
+```
     // Get single item
     query {
       products(id: "product_id") {
@@ -135,10 +135,10 @@ After containers up, open browser and go to http://localhost:8080
         timestamp
       }
     }
-    
+```    
 - Get Order By Account ID
 
-
+```
     query {
         orders(account_id: "account_id") {
             id
@@ -153,3 +153,4 @@ After containers up, open browser and go to http://localhost:8080
             }
         }
     }
+```
