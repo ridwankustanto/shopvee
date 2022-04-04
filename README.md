@@ -12,11 +12,12 @@ Shopvee is simple e-commerce that implemented microservice architecture. It used
 
 ## Architecture Design
 
-<!--Upload Image-->
+![image](https://user-images.githubusercontent.com/19152005/161570629-8e2ac565-0205-4d78-93a0-658885f0f76c.png)
+
 
 ## System Design
 
-<!--Upload Image-->
+![image](https://user-images.githubusercontent.com/19152005/161570681-25213180-23c1-4745-bd0a-a850d26fb35c.png)
 
 ## Installation
 
