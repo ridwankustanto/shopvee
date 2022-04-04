@@ -30,6 +30,11 @@ docker-compose up -d
 
 Make sure you already start the Docker engine.
 
+## Testing
+
+Since the client depends on their service and DB, so the test will run while running `docker-compose up --build -d unit_test` as a container. It will die after the test finished.
+
+
 ## Example
 
 After containers up, open browser and go to http://localhost:8080
