@@ -1,7 +1,6 @@
 # Shopvee
 ## _Simple E-Commerce With Microservice_
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
 ## Description
 Shopvee is simple e-commerce that implemented microservice architecture. It used gRPC as main communication between services and serve graphql for the client to consume it's function.
